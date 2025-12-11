@@ -1,0 +1,36 @@
+10.1.2025
+-------------------------------
+python -m venv venv
+.\venv\Scripts\Activate
+
+
+create a requirements.txt outside of the venv folder
+and paste the below text:
+
+opencv-python
+scikit-image
+pytesseract
+
+and then run:
+pip install -r requirements.txt
+
+python.exe -m pip install --upgrade pip
+
+https://github.com/UB-Mannheim/tesseract/wiki
+
+add environment as below:
+Search → Edit the system environment variables
+Click Environment Variables
+Under System variables → Path → Edit
+Add new
+Paste:
+--------------
+
+
+
+09.12.2025
+--------------------------------
+create project folder
+install Git
+Brainstorm: how to implement
+----------------------------------
