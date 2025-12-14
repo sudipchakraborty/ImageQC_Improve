@@ -1,1 +1,1 @@
-from .utils import show, remove_noise,detect_noise, to_gray
+from .utils import show, remove_noise,detect_noise, to_gray,deskew,inpaint

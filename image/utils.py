@@ -5,6 +5,12 @@ from skimage.filters import threshold_sauvola
 import matplotlib.pyplot as plt
 ########################################################################################
 def show(img_path):
+    """
+        @brief this function is used to show the image inside the windows from image path
+        @param  image
+        @return none
+        @throws not implemented.
+    """
     window_name = "Image Viewer (OpenCV)"
     img = cv2.imread(img_path)
     if img is None:
@@ -43,6 +49,12 @@ def show(img_path):
     cv2.destroyAllWindows()
 #############################################################################
 def show(img):
+    """
+        @brief this function is used to show the image inside the windows
+        @param  image
+        @return none
+        @throws not implemented.
+    """
     window_name = "Image Viewer (OpenCV)"
     root = tk.Tk()
     screen_w = root.winfo_screenwidth()
@@ -75,7 +87,12 @@ def show(img):
     cv2.destroyAllWindows()
 ################################################################################
 def remove_noise(img_gray):
-    """Remove noise, speckles, and enhance image quality"""
+    """
+        @brief Remove noise, speckles, and enhance image quality
+        @param gray image
+        @return return noise reduction image
+        @throws not implemented.
+    """
     # Apply non-local means denoising
     denoised = cv2.fastNlMeansDenoising(img_gray, h=10, templateWindowSize=7, searchWindowSize=21)
     
@@ -101,7 +118,12 @@ def remove_noise(img_gray):
     return result
 #####################################################################################
 def detect_noise(img_gray, img_color):
-    """Detect and mark noise, speckles, and defects"""
+    """
+        @brief Detect and mark noise, speckles, and defects
+        @param gray image
+        @return return marked image
+        @throws not implemented.
+    """
     marked_img = img_color.copy()
     
     # 1. Detect black holes/dark defects
@@ -158,8 +180,13 @@ def detect_noise(img_gray, img_color):
     
     return marked_img, final_mask
 ################################################################################
-def deskew_image(img_gray):
-    """Detect and correct image skew"""
+def deskew(img_gray):
+    """
+        @brief Detect and correct image skew
+        @param image
+        @return return deskew image
+        @throws not implemented.
+    """
     edges = cv2.Canny(img_gray, 50, 150)
     lines = cv2.HoughLinesP(edges, 1, np.pi/180, 100, minLineLength=100, maxLineGap=10)
     if lines is None:
@@ -174,8 +201,13 @@ def deskew_image(img_gray):
     rotated = cv2.warpAffine(img_gray, M, (w, h), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
     return rotated, median_angle
 #############################################################################
-def inpaint_defects(img_color, mask_thresh=10):
-    """Remove black holes, page folds, and defects"""
+def inpaint(img_color, mask_thresh=10):
+    """
+        @brief Remove black holes, page folds, and defects
+        @param image
+        @return return gray scale image
+        @throws not implemented.
+    """
     gray = cv2.cvtColor(img_color, cv2.COLOR_BGR2GRAY)
     mask = (gray < mask_thresh).astype(np.uint8) * 255
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
