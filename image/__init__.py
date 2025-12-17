@@ -1,1 +1,1 @@
-from .utils import show, remove_noise,detect_noise, to_gray,deskew,inpaint
+from .utils import show, remove_noise,detect_noise, to_gray,deskew,deskew_using_text_bbox,inpaint

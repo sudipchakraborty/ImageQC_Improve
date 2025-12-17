@@ -201,6 +201,88 @@ def deskew(img_gray):
     rotated = cv2.warpAffine(img_gray, M, (w, h), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
     return rotated, median_angle
 #############################################################################
+def deskew_using_text_bbox(img_gray, debug=False):
+    """
+    Deskew image using TEXT bounding boxes only.
+    Robust against tables, borders, vertical lines.
+
+    Returns:
+        rotated_image, skew_angle
+    """
+
+    # 1. Binarize (text foreground = white)
+    _, bw = cv2.threshold(
+        img_gray, 0, 255,
+        cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
+    )
+
+    # 2. Morphology to connect characters into words/lines
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (30, 5))
+    bw = cv2.morphologyEx(bw, cv2.MORPH_CLOSE, kernel)
+
+    # 3. Find connected components (text blocks)
+    contours, _ = cv2.findContours(
+        bw, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+    )
+
+    angles = []
+    boxes = []
+
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        if area < 500:      # remove noise
+            continue
+
+        rect = cv2.minAreaRect(cnt)
+        (cx, cy), (w, h), angle = rect
+
+        # Filter non-text shapes (tables, lines)
+        if w < 20 or h < 10:
+            continue
+
+        # Normalize angle
+        if w < h:
+            angle = angle + 90
+
+        angles.append(angle)
+        boxes.append(rect)
+
+    if len(angles) == 0:
+        return img_gray, 0.0
+
+    # 4. Median angle (robust)
+    skew_angle = np.median(angles)
+
+    # 5. Rotate image
+    (h, w) = img_gray.shape
+    M = cv2.getRotationMatrix2D((w // 2, h // 2), skew_angle, 1.0)
+    rotated = cv2.warpAffine(
+        img_gray, M, (w, h),
+        flags=cv2.INTER_LINEAR,
+        borderMode=cv2.BORDER_REPLICATE
+    )
+
+    # 6. Optional debug visualization
+    if debug:
+        vis = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2BGR)
+        for rect in boxes:
+            box = cv2.boxPoints(rect)
+            box = np.intp(box)
+            cv2.drawContours(vis, [box], 0, (0, 255, 0), 1)
+
+        cv2.putText(
+            vis,
+            f"Skew angle: {skew_angle:.2f} deg",
+            (20, 40),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 0, 255),
+            2
+        )
+        show(vis)
+
+    return rotated, skew_angle
+####################################################################################
 def inpaint(img_color, mask_thresh=10):
     """
         @brief Remove black holes, page folds, and defects
